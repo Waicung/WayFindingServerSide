@@ -103,6 +103,33 @@ if (isset($_POST['username'])&&
                     }
                     else{
                         $response['status'] = $CODE_NO_STEP;
+                        //get start and end point
+                        $route_query = "SELECT start_point,end_point FROM routes WHERE route_id = '$route_id'";
+                        $route_search = mysqli_query($conn, $route_query);
+                        $route = mysqli_fetch_array($route_search);
+                        $start_id = $route['start_point'];
+                        $end_id = $route['start_point'];
+                        //get start_point coordinate
+                        $start_search = mysqli_query($conn, "SELECT * FROM way_points WHERE location_id = $start_id");
+                        $point = array();
+                        $point_coordinate  = mysqli_fetch_array($start_search);
+                        $point['lat'] = floatval ($point_coordinate ['latitude']);
+                        $point['lng'] = floatval ($point_coordinate ['longitude']);
+                        $response['points']=array();
+
+                        //push single row into final response array
+                        array_push($response['points'], $point);
+
+                        //get end_point coordinate
+                        $end_search = mysqli_query($conn, "SELECT * FROM way_points WHERE location_id = $end_id");
+                        $point = array();
+                        $point_coordinate = mysqli_fetch_array($end_search);
+                        $point['lat'] = floatval ($point_coordinate ['latitude']);
+                        $point['lng'] = floatval ($point_coordinate ['longitude']);
+
+                        //push single row into final response array
+                        array_push($response['points'], $point);
+
                     }
                 } else {
                     $response["status"] = $CODE_ALL_TESTED;
