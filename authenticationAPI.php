@@ -45,14 +45,15 @@ if (isset($_POST['username'])&&
                     //not tested route_id
                     $route_id = $assignment['route_id'];
                     $modified_step = $assignment['error_step'];
+                    $modified_value = $assignment['error_value'];
                     $response["route_id"] =$route_id;
                     //check if steps exists for the not tested route
                     $steps_query = "SELECT * FROM steps WHERE route_id = '$route_id' ORDER BY step_number";
                     $steps_search = mysqli_query($conn,$steps_query);
                     if(!empty($steps_search && mysqli_num_rows($steps_search)>0)) {
-                        $steps = resultToArray($steps_search);
                         //check if route has been modified(have error_step)
                         if ($modified_step <> null) {
+                            $steps = resultToArray($steps_search,$modified_step,$modified_value);
                             $response["status"] = $CODE_NOT_TESTED;
                             $response['route_id'] = $route_id;
                             $response['steps'] = $steps;
@@ -108,7 +109,7 @@ if (isset($_POST['username'])&&
                         $route_search = mysqli_query($conn, $route_query);
                         $route = mysqli_fetch_array($route_search);
                         $start_id = $route['start_point'];
-                        $end_id = $route['start_point'];
+                        $end_id = $route['end_point'];
                         //get start_point coordinate
                         $start_search = mysqli_query($conn, "SELECT * FROM way_points WHERE location_id = $start_id");
                         $point = array();
@@ -127,7 +128,7 @@ if (isset($_POST['username'])&&
                         $point['lat'] = floatval ($point_coordinate ['latitude']);
                         $point['lng'] = floatval ($point_coordinate ['longitude']);
 
-                        //push single row into final response array
+
                         array_push($response['points'], $point);
 
                     }
@@ -153,10 +154,13 @@ else {
 
 echo json_encode($response);
 
-function resultToArray($result)
+function resultToArray($result,$error_step, $error_value)
 {
     $rows = array();
-    while ($row = $result->fetch_assoc()) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        if($row['step_number'] == $error_step){
+            $row['instruction'] = $error_value;
+        }
         $rows[] = $row;
     }
     return $rows;
