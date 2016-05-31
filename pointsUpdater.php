@@ -21,19 +21,24 @@ echo $result;*/
 
 class pointsUpdater
 {
-    function updatePoint($conn, $lat,$lng){
-        $search_query = "SELECT * FROM way_points WHERE latitude = '$lat' AND longitude = '$lng'";
+    function updatePoint($conn, $lat, $lng, $name){
+        $search_query = "SELECT * FROM way_points WHERE latitude = $lat AND longitude = $lng";
         $search = mysqli_query($conn,$search_query);
         if(!empty($search)&&mysqli_num_rows($search)>0){
             $point = mysqli_fetch_array($search);
             //if exist, return point_id
-            $point_id = $point['location_id'];
+            $point_id = $point['point_id'];
             return $point_id;
         }
         else {
+          if($name==""){
             $insert_query = "INSERT INTO way_points (latitude, longitude) VALUES ($lat,$lng)";
-            mysqli_query($conn, $insert_query);
-            return $this->updatePoint($conn, $lat, $lng);
+          }
+          else{
+            $insert_query = "INSERT INTO way_points (latitude, longitude, name) VALUES ($lat,$lng,'$name')";
+          }
+          mysqli_query($conn, $insert_query);
+          return $this->updatePoint($conn, $lat, $lng, $name);
         }
 
     }
