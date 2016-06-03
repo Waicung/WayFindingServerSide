@@ -1,26 +1,18 @@
+/*
+* create an map array for this js
+* */
+
 var apiKey = 'AIzaSyAZEyaeSOnH8dcVq646GIyUQbxGKHza_dc';
 var polylines = [];
-var map = [];
 var snappedCoordinates = [];
 // path is a MVCArray
 function initialize(order,path) {
-    /*if(path.getLength()<=100){
-        runSnapToRoad(path);
-        drawSnappedPolyline();
-    }else {
-        var route = breakLongPath(path);
-        for(var i=0;i<route.length;i++) {
-            runSnapToRoad(route[i]);
-            drawSnappedPolyline(order);
-        }
-    }*/
     runSnapToRoad(order,path);
 }
 
 // Snap a user-created polyline to roads and draw the snapped path
 function runSnapToRoad(order,path) {
     var center = {lat:-37.799604, lng:144.957807};
-    addMap(center,order);
     snappedCoordinates = [];
     if(path.getLength()>100){
         var route = breakLongPath(path);
@@ -31,10 +23,9 @@ function runSnapToRoad(order,path) {
     else{
         requestSnap(order,snappedCoordinates,path);
     }
-
-
 }
 
+//send snap-to-road request and handle callback
 function requestSnap(order,snappedCoordinates,path){
     var pathValues = [];
     for (var i = 0; i < path.getLength(); i++) {
@@ -45,9 +36,8 @@ function requestSnap(order,snappedCoordinates,path){
         key: apiKey,
         path: pathValues.join('|')
     }, function(data) {
+        //store response in local
         processSnapToRoadResponse(order,snappedCoordinates,data);
-        drawSnappedPolyline(order,snappedCoordinates);
-        //drawSnappedPolyline();
     });
 }
 
@@ -64,29 +54,26 @@ function processSnapToRoadResponse(order,snappedCoordinates,data) {
 
 // Draws the snapped polyline (after processing snap-to-road response).
 function drawSnappedPolyline(order,snappedCoordinates) {
+    addMap(centre,order);
     var snappedPolyline = new google.maps.Polyline({
         path: snappedCoordinates,
         strokeColor: 'black',
         strokeWeight: 3
     });
-    /*snappedCoordinates.forEach(
-        function(v){
-        addPoint(order,v);
-    })*/
-
+    //draw snapped points
     for(var i=0;i<snappedCoordinates.length;i+=10){
-        addPoint(order,snappedCoordinates[i],i);
+        addPoint(order,snappedCoordinates[i],i+1);
     }
-
-    snappedPolyline.setMap(map[order]);
+    //draw snapped polyline
+    snappedPolyline.setMap(maps[order]);
     polylines.push(snappedPolyline);
 }
 
 function addPoint(order,latlng,i){
     new google.maps.Marker({
         position: latlng,
-        map: map[order],
-        label: ""+i,
+        map: maps[order],
+        label: i.toString(),
     });
 }
 
@@ -113,10 +100,11 @@ function breakLongPath(path){
     return route;
 }
 
+//create a map element
 function addMap(center,order){
     $("#map").remove();
     $("#map-container").prepend("<div class='col-sm-4'><div class='floating-title'>Test "+order+"</div><div class='map' id='map" + order+1 +"'></div></div>");
-    map[order] = new google.maps.Map(document.getElementById('map'+order), {
+    maps[order] = new google.maps.Map(document.getElementById('map'+order), {
         zoom: 15,
         center: center,
         //mapTypeId: google.maps.MapTypeId.TERRAIN
