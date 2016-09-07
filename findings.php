@@ -78,7 +78,7 @@ array_push($speedResponse,$speeds);
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
       <script src="/chartistjs/dist/chartist.min.js"></script>
-    <script src="https://npmcdn.com/simple-statistics@2.0.0/dist/simple-statistics.min.js"></script>
+    <script src="https://unpkg.com/simple-statistics@2.0.0/dist/simple-statistics.min.js"></script>
     <style>
       .ct-chart{height: auto;
       }
